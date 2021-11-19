@@ -25,7 +25,7 @@ CREATE TABLE "signatures" (
 	"id" serial NOT NULL,
 	"user_id" integer NOT NULL,
 	"plan_id" integer NOT NULL,
-	"date" TIMESTAMP NOT NULL DEFAULT 'now()',
+	"date" TIMESTAMP NOT NULL,
 	CONSTRAINT "signatures_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
