@@ -5,7 +5,6 @@ import connection from "../src/database/connection.js";
 import { createUser } from "./factories/createUser.js";
 import { createSession } from "./factories/createSession.js";
 import { v4 as uuid } from "uuid";
-import faker from "faker";
 
 describe("GET /auth", () => {
     it("return 200 when session exists and is active", async () => {
@@ -25,7 +24,6 @@ describe("GET /auth", () => {
     });
 
     it("return 400 when authorization dont have token", async () => {
-        const user = await createUser();
         const result = await supertest(app)
             .get("/auth")
             .set({ Authorization: `Bearer` });
@@ -33,7 +31,6 @@ describe("GET /auth", () => {
     });
 
     it("return 400 when authorization dont have 'Bearer'", async () => {
-        const user = await createUser();
         const result = await supertest(app)
             .get("/auth")
             .set({ Authorization: uuid() });
