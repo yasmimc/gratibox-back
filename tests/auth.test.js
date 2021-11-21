@@ -40,3 +40,12 @@ describe("GET /auth", () => {
         expect(result.status).toEqual(400);
     });
 });
+
+afterAll(async () => {
+    await connection.query("DELETE FROM sessions");
+    await connection.query("DELETE FROM users");
+});
+
+afterAll(async () => {
+    connection.end();
+});
