@@ -25,7 +25,8 @@ CREATE TABLE "signatures" (
 	"id" serial NOT NULL,
 	"user_id" integer NOT NULL,
 	"plan_id" integer NOT NULL,
-	"date" TIMESTAMP NOT NULL,
+	"start_date" TIMESTAMP NOT NULL,
+	"delivery_info" int NOT NULL,
 	CONSTRAINT "signatures_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
@@ -66,10 +67,37 @@ CREATE TABLE "sessions" (
 
 
 
+CREATE TABLE "delivery_info" (
+	"id" serial NOT NULL,
+	"address" TEXT NOT NULL,
+	"cep" varchar(8) NOT NULL,
+	"city" TEXT NOT NULL,
+	"state" TEXT NOT NULL,
+	"user_fulllname" TEXT NOT NULL,
+	CONSTRAINT "delivery_info_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "deliveries" (
+	"id" serial NOT NULL,
+	"signature_id" serial NOT NULL,
+	"date" TIMESTAMP NOT NULL,
+	"rate" TEXT,
+	CONSTRAINT "deliveries_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
 
 
 ALTER TABLE "signatures" ADD CONSTRAINT "signatures_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("id");
 ALTER TABLE "signatures" ADD CONSTRAINT "signatures_fk1" FOREIGN KEY ("plan_id") REFERENCES "plans"("id");
+ALTER TABLE "signatures" ADD CONSTRAINT "signatures_fk2" FOREIGN KEY ("delivery_info") REFERENCES "delivery_info"("id");
 
 ALTER TABLE "signature_products" ADD CONSTRAINT "signature_products_fk0" FOREIGN KEY ("signature_id") REFERENCES "signatures"("id");
 ALTER TABLE "signature_products" ADD CONSTRAINT "signature_products_fk1" FOREIGN KEY ("product_id") REFERENCES "products"("id");
@@ -78,7 +106,5 @@ ALTER TABLE "signature_products" ADD CONSTRAINT "signature_products_fk1" FOREIGN
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("id");
 
 
-
-
-
+ALTER TABLE "deliveries" ADD CONSTRAINT "deliveries_fk0" FOREIGN KEY ("signature_id") REFERENCES "signatures"("id");
 
