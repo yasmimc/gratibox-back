@@ -3,6 +3,7 @@ import app from "../src/app.js";
 import supertest from "supertest";
 import { createUser } from "./factories/createUser.js";
 import { createSession } from "./factories/createSession.js";
+import connection from "../src/database/connection.js";
 
 describe("GET /plans", () => {
     let token;
@@ -22,4 +23,13 @@ describe("GET /plans", () => {
         expect(result.body).not.toBeUndefined();
         expect(result.body).toBeTruthy();
     });
+});
+
+afterAll(async () => {
+    await connection.query("DELETE FROM sessions");
+    await connection.query("DELETE FROM users");
+});
+
+afterAll(async () => {
+    connection.end();
 });
