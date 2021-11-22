@@ -25,6 +25,7 @@ describe("POST /signature", () => {
             startDate: "2021-11-23",
             state: "MG",
             userFullName: "YASMIM CAVALCANTI DE REZENDE",
+            date: new Date(),
         };
 
         const result = await supertest(app)
@@ -69,6 +70,7 @@ describe("GET /signature", () => {
             startDate: "2021-11-23",
             state: "MG",
             userFullName: "YASMIM CAVALCANTI DE REZENDE",
+            date: new Date(),
         };
         const result = await supertest(app)
             .post("/signature")

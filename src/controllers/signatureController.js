@@ -37,7 +37,7 @@ async function signPlan(req, res) {
 
     try {
         const deliveryInfo = await connection.query(
-            `INSERT INTO delivery_info (address, cep, city, state, user_fulllname) 
+            `INSERT INTO delivery_info (address, cep, city, state, user_fullname) 
                 VALUES ($1, $2, $3, $4, $5)
                 RETURNING id`,
             [deliveryAddress, cep, city, state, userFullName]
@@ -92,7 +92,7 @@ async function getUserPlan(req, res) {
             `SELECT signatures.id,
                     sessions.user_id AS "userId",
                     signatures.start_date AS "startDate",
-                    delivery_info.user_fulllname AS "userFullName",
+                    delivery_info.user_fullname AS "userFullName",
                     delivery_info.address AS "deliveryAddress",
                     delivery_info.cep,
                     delivery_info.city,
@@ -110,6 +110,8 @@ async function getUserPlan(req, res) {
             WHERE sessions.token = $1`,
             [token]
         );
+
+        if (!result.rowCount) return res.sendStatus(404);
         const signature = result.rows[0];
 
         const signatureProducts = await connection.query(
