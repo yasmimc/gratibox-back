@@ -27,7 +27,10 @@ SQL script here: https://github.com/yasmimc/gratibox-back/blob/9fbe68aac9f8f6100
 
 And then create a .env.test file following as an example the .env.example file, setting the environment variables accordingly. with data from your database.
 
-The .env.example file here: https://github.com/yasmimc/gratibox-back/blob/2be1316d9f48fe8922d43f8a08847db4e91dcec9/.env.example
+The .env.example file here: https://github.com/yasmimc/gratibox-back/blob/2be1316d9f48fe8922d43f8a08847db4e91dcec9/.env.example.
+
+**_Warning_**
+You need to populate the database with plans and products. You can run `npm run pop` to add them automatically.
 
 In the project directory, you can run:
 
@@ -43,6 +46,10 @@ Open [http://localhost:4000](http://localhost:4000) to view it in the browser.
 
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
+
+### `npm run pop`
+
+Runs the robot to populate database with plans and products.
 
 ### `npm run test`
 
