@@ -35,8 +35,6 @@ async function signPlan(req, res) {
         return;
     }
 
-    console.log(req.body);
-
     try {
         const deliveryInfo = await connection.query(
             `INSERT INTO delivery_info (address, cep, city, state, user_fullname) 
