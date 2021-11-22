@@ -46,7 +46,7 @@ async function signPlan(req, res) {
         const signature = await connection.query(
             `INSERT INTO signatures (user_id, plan_id, start_date, delivery_info) 
                 VALUES ($1, $2, $3, $4)
-                RETURNING id`,
+                RETURNING id AND date`,
             [userId, plan, startDate, deliveryInfo.rows[0].id]
         );
 
@@ -77,6 +77,7 @@ async function signPlan(req, res) {
             startDate,
             state,
             userFullName,
+            date: signature.rows[0].date,
         });
     } catch (error) {
         console.log(error);
@@ -92,6 +93,7 @@ async function getUserPlan(req, res) {
             `SELECT signatures.id,
                     sessions.user_id AS "userId",
                     signatures.start_date AS "startDate",
+                    signatures.date,
                     delivery_info.user_fullname AS "userFullName",
                     delivery_info.address AS "deliveryAddress",
                     delivery_info.cep,
