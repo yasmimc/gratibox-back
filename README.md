@@ -21,6 +21,14 @@ You must have installed node and npm.
 
 First run `npm i` to install all dependencies.
 
+Use the sql script at to create your database structure.
+
+SQL script here: https://github.com/yasmimc/gratibox-back/blob/9fbe68aac9f8f61002b3395c36c6c3b3ccfdf0d9/src/database/createDatabase.sql
+
+And then create a .env.test file following as an example the .env.example file, setting the environment variables accordingly. with data from your database.
+
+The .env.example file here: https://github.com/yasmimc/gratibox-back/blob/2be1316d9f48fe8922d43f8a08847db4e91dcec9/.env.example
+
 In the project directory, you can run:
 
 ### `npm start`
