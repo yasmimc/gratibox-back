@@ -35,6 +35,8 @@ async function signPlan(req, res) {
         return;
     }
 
+    console.log(req.body);
+
     try {
         const deliveryInfo = await connection.query(
             `INSERT INTO delivery_info (address, cep, city, state, user_fullname) 
@@ -46,7 +48,7 @@ async function signPlan(req, res) {
         const signature = await connection.query(
             `INSERT INTO signatures (user_id, plan_id, start_date, delivery_info) 
                 VALUES ($1, $2, $3, $4)
-                RETURNING id AND date`,
+                RETURNING id, date`,
             [userId, plan, startDate, deliveryInfo.rows[0].id]
         );
 
