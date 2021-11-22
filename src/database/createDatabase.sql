@@ -27,6 +27,7 @@ CREATE TABLE "signatures" (
 	"plan_id" integer NOT NULL,
 	"start_date" TIMESTAMP NOT NULL,
 	"delivery_info" int NOT NULL,
+	"date" TIMESTAMP NOT NULL DEFAULT 'now()',
 	CONSTRAINT "signatures_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
@@ -73,7 +74,7 @@ CREATE TABLE "delivery_info" (
 	"cep" varchar(8) NOT NULL,
 	"city" TEXT NOT NULL,
 	"state" TEXT NOT NULL,
-	"user_fulllname" TEXT NOT NULL,
+	"user_fullname" TEXT NOT NULL,
 	CONSTRAINT "delivery_info_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
