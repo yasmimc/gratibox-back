@@ -5,6 +5,7 @@ import { createUser } from "./factories/createUser.js";
 import { createSession } from "./factories/createSession.js";
 import connection from "../src/database/connection.js";
 import { createSignature } from "./factories/createSignature.js";
+import * as signaturesService from "../src/services/signaturesService.js";
 
 describe("POST /signature", () => {
     let token;
@@ -46,18 +47,21 @@ describe("POST /signature", () => {
 
 describe("GET /signature", () => {
     let token;
+    let user;
     beforeAll(async () => {
-        const user = await createUser();
+        user = await createUser();
         const session = await createSession(user.id);
         token = session.token;
-        const body = createSignature(user.id);
-        const result = await supertest(app)
-            .post("/signature")
-            .send(body)
-            .set({ Authorization: `Bearer ${token}` });
+    });
+    afterEach(async () => {
+        await connection.query("DELETE FROM signature_products");
+        await connection.query("DELETE FROM signatures");
+        await connection.query("DELETE FROM delivery_info");
     });
 
     it("should return 200 and user plan info when it exists", async () => {
+        const body = createSignature(user.id);
+        await signaturesService.signPlan(body);
         const result = await supertest(app)
             .get("/signature")
             .set({ Authorization: `Bearer ${token}` });
@@ -74,6 +78,13 @@ describe("GET /signature", () => {
         expect(result.body).toHaveProperty("cep");
         expect(result.body).toHaveProperty("city");
         expect(result.body).toHaveProperty("state");
+    });
+
+    it("should return 404 when user dont have a signed plan", async () => {
+        const result = await supertest(app)
+            .get("/signature")
+            .set({ Authorization: `Bearer ${token}` });
+        expect(result.status).toEqual(404);
     });
 });
 
