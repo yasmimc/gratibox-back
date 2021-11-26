@@ -6,12 +6,14 @@ import { createSession } from "./factories/createSession.js";
 import connection from "../src/database/connection.js";
 import { createSignature } from "./factories/createSignature.js";
 import * as signaturesService from "../src/services/signaturesService.js";
+import * as userRepository from "../src/repositories/userRepository.js";
 
 describe("POST /signature", () => {
     let token;
     let user;
     beforeAll(async () => {
-        user = await createUser();
+        const mockUser = createUser();
+        user = await userRepository.create(mockUser);
         const session = await createSession(user.id);
         token = session.token;
     });
@@ -49,7 +51,8 @@ describe("GET /signature", () => {
     let token;
     let user;
     beforeAll(async () => {
-        user = await createUser();
+        const mockUser = createUser();
+        user = await userRepository.create(mockUser);
         const session = await createSession(user.id);
         token = session.token;
     });

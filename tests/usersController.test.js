@@ -1,3 +1,4 @@
+import faker from "faker";
 import "../src/setup.js";
 import app from "../src/app.js";
 import supertest from "supertest";
@@ -5,25 +6,25 @@ import connection from "../src/database/connection.js";
 import { createUser } from "./factories/createUser.js";
 import { createSession } from "./factories/createSession.js";
 import * as sessionRepository from "../src/repositories/sessionRepository.js";
+import * as userRepository from "../src/repositories/userRepository.js";
+import * as userService from "../src/services/userService.js";
 
 describe("POST /sign-up", () => {
-    let mockUser;
+    let user;
 
     beforeAll(async () => {
-        /*createUser takes an optional parameter (dontSave) that says 
-		whether user data should not be saved to the database*/
-        mockUser = await createUser(true);
+        user = createUser();
     });
 
     it("returns 201 for new user with valid params", async () => {
-        const result = await supertest(app).post("/sign-up").send(mockUser);
+        const result = await supertest(app).post("/sign-up").send(user);
         const status = result.status;
 
         expect(status).toEqual(201);
     });
 
     it("returns 400 for invalid user params", async () => {
-        const body = { ...mockUser };
+        const body = { ...user };
         delete body.email;
 
         const result = await supertest(app).post("/sign-up").send(body);
@@ -33,7 +34,8 @@ describe("POST /sign-up", () => {
     });
 
     it("returns 409 for existent user", async () => {
-        const newUser = await createUser();
+        const mockUser = createUser();
+        const newUser = await userRepository.create(mockUser);
         const result = await supertest(app).post("/sign-up").send(newUser);
         const status = result.status;
 
@@ -44,7 +46,8 @@ describe("POST /sign-up", () => {
 describe("POST /sign-in", () => {
     let mockUser;
     beforeAll(async () => {
-        mockUser = await createUser();
+        mockUser = createUser();
+        await userService.createUser(mockUser);
     });
 
     beforeEach(async () => {
@@ -79,9 +82,7 @@ describe("POST /sign-in", () => {
     });
 
     it("returns 404 for non existent user", async () => {
-        //createUser takes an optional parameter (dontSave) that says
-        //whether user data should not be saved to the database
-        const nonExistentUser = await createUser(true);
+        const nonExistentUser = createUser();
 
         const body = {
             email: nonExistentUser.email,
@@ -97,7 +98,7 @@ describe("POST /sign-in", () => {
     it("returns 401 for incorrect password", async () => {
         const body = {
             email: mockUser.email,
-            password: "123qweASD",
+            password: faker.internet.password(),
         };
 
         const result = await supertest(app).post("/sign-in").send(body);
@@ -109,12 +110,12 @@ describe("POST /sign-in", () => {
 
 describe("DELETE /session", () => {
     let session;
-    let mockUser;
+    let user;
     beforeAll(async () => {
-        /*createUser takes an optional parameter (dontSave) that says
-		whether user data should not be saved to the database*/
-        mockUser = await createUser();
-        session = await createSession(mockUser.id);
+        const mockUser = createUser();
+        const result = await userService.createUser(mockUser);
+        user = result.user;
+        session = await createSession(user.id);
     });
 
     afterEach(async () => {
@@ -132,7 +133,7 @@ describe("DELETE /session", () => {
 
     it("should return 404 when session is expired", async () => {
         await sessionRepository.create({
-            userId: mockUser.id,
+            userId: user.id,
             token: session.token,
         });
         await supertest(app)

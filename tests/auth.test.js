@@ -5,10 +5,12 @@ import connection from "../src/database/connection.js";
 import { createUser } from "./factories/createUser.js";
 import { createSession } from "./factories/createSession.js";
 import { v4 as uuid } from "uuid";
+import * as userRepository from "../src/repositories/userRepository.js";
 
 describe("GET /auth", () => {
     it("return 200 when session exists and is active", async () => {
-        const user = await createUser();
+        const mockUser = createUser();
+        const user = await userRepository.create(mockUser);
         const session = await createSession(user.id);
         const result = await supertest(app)
             .get("/auth")
