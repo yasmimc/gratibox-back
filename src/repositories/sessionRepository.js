@@ -14,4 +14,24 @@ async function create({ userId, token }) {
     }
 }
 
-export { create };
+async function getSessionByToken({ token }) {
+    try {
+        const result = await connection.query(
+            `SELECT * FROM sessions WHERE token = $1 AND is_expired = false`,
+            [token]
+        );
+
+        if (!result.rows.length)
+            return {
+                message: "Session not found",
+                token: null,
+            };
+        return result.rows[0];
+    } catch (error) {
+        console.log("FAIL in authentication");
+        console.log(error);
+        return null;
+    }
+}
+
+export { create, getSessionByToken };

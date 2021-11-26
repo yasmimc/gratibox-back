@@ -1,5 +1,4 @@
-import connection from "../database/connection.js";
-import { validate as uuidValidate } from "uuid";
+import * as userService from "../services/userService.js";
 
 export default async function auth(req, res, next) {
     const { authorization } = req.headers;
@@ -11,25 +10,16 @@ export default async function auth(req, res, next) {
     )
         return res.sendStatus(400);
 
-    const token = authorization.replace("Bearer ", "");
+    const session = await userService.validateUserToken({ authorization });
 
-    if (token.trim() === "") return res.sendStatus(422);
-    if (!uuidValidate(token)) return res.sendStatus(400);
-
-    try {
-        const result = await connection.query(
-            `SELECT * FROM sessions WHERE token = $1 AND is_expired = false`,
-            [token]
-        );
-
-        if (!result.rows.length) return res.sendStatus(404);
-    } catch (error) {
-        console.log("FAIL in authentication");
-        console.log(error);
+    if (!session) {
         return res.sendStatus(500);
     }
+    if (!session.token) {
+        return res.sendStatus(404);
+    }
 
-    req.locals = { token };
+    req.locals = { token: session.token };
 
     next();
 }
