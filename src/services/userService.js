@@ -65,4 +65,8 @@ async function validateUserToken({ authorization }) {
     return await sessionRepository.getSessionByToken({ token });
 }
 
-export { createUser, createUserSession, validateUserToken };
+async function logoutUserSession({ token }) {
+    return await sessionRepository.setSessionAsExpired({ token });
+}
+
+export { createUser, createUserSession, validateUserToken, logoutUserSession };
