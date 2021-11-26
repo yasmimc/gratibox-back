@@ -1,13 +1,11 @@
-import connection from "../database/connection.js";
+import * as plansService from "../services/plansService.js";
 
 async function getPlans(req, res) {
-    try {
-        const result = await connection.query(`SELECT * FROM plans;`);
-        res.send(result.rows);
-    } catch (error) {
-        console.error(error);
-        res.sendStatus(500);
+    const plans = await plansService.getPlans();
+    if (!plans) {
+        return res.status(500);
     }
+    res.send(plans);
 }
 
 export { getPlans };
