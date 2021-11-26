@@ -34,4 +34,20 @@ async function getSessionByToken({ token }) {
     }
 }
 
-export { create, getSessionByToken };
+async function setSessionAsExpired({ token }) {
+    try {
+        const result = await connection.query(
+            `UPDATE sessions
+            SET is_expired = true
+        WHERE token = $1
+        RETURNING *`,
+            [token]
+        );
+        return result.rows[0];
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+
+export { create, getSessionByToken, setSessionAsExpired };

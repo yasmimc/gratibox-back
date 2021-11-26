@@ -3,6 +3,8 @@ import app from "../src/app.js";
 import supertest from "supertest";
 import connection from "../src/database/connection.js";
 import { createUser } from "./factories/createUser.js";
+import { createSession } from "./factories/createSession.js";
+import * as sessionRepository from "../src/repositories/sessionRepository.js";
 
 describe("POST /sign-up", () => {
     let mockUser;
@@ -102,6 +104,46 @@ describe("POST /sign-in", () => {
         const status = result.status;
 
         expect(status).toEqual(401);
+    });
+});
+
+describe("DELETE /session", () => {
+    let session;
+    let mockUser;
+    beforeAll(async () => {
+        /*createUser takes an optional parameter (dontSave) that says
+		whether user data should not be saved to the database*/
+        mockUser = await createUser();
+        session = await createSession(mockUser.id);
+    });
+
+    afterEach(async () => {
+        await connection.query("DELETE FROM sessions");
+    });
+
+    it("should set session as expired and return 200", async () => {
+        const result = await supertest(app)
+            .delete("/session")
+            .set({ Authorization: `Bearer ${session.token}` });
+        const status = result.status;
+
+        expect(status).toEqual(200);
+    });
+
+    it("should return 404 when session is expired", async () => {
+        await sessionRepository.create({
+            userId: mockUser.id,
+            token: session.token,
+        });
+        await supertest(app)
+            .delete("/session")
+            .set({ Authorization: `Bearer ${session.token}` });
+        const result = await supertest(app)
+            .delete("/session")
+            .set({ Authorization: `Bearer ${session.token}` });
+        const status = result.status;
+
+        expect(status).toEqual(404);
     });
 });
 

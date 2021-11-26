@@ -58,4 +58,13 @@ async function signIn(req, res) {
     res.status(200).send({ token: result.token, user: result.user });
 }
 
-export { signUp, signIn };
+async function logout(req, res) {
+    const { token } = req.locals;
+    const logoutSession = await userService.logoutUserSession({ token });
+    if (!logoutSession) {
+        return res.sendStatus(500);
+    }
+    res.send(logoutSession);
+}
+
+export { signUp, signIn, logout };

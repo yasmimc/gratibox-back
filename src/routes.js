@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signUp, signIn } from "./controllers/usersController.js";
+import { signUp, signIn, logout } from "./controllers/usersController.js";
 import { getPlans } from "./controllers/plansController.js";
 import { sendOk } from "./helpers/responses.js";
 import auth from "./middleware/auth.js";
@@ -15,5 +15,6 @@ routes.get("/plans", auth, getPlans);
 routes.get("/products", auth, getProducts);
 routes.post("/signature", auth, signPlan);
 routes.get("/signature", auth, getUserPlan);
+routes.delete("/session", auth, logout);
 
 export default routes;
