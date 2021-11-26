@@ -29,5 +29,7 @@ export default async function auth(req, res, next) {
         return res.sendStatus(500);
     }
 
+    req.locals = { token };
+
     next();
 }

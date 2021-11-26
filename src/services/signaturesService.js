@@ -22,16 +22,12 @@ async function signPlan({
             userFullName,
         });
 
-        console.log({ deliveryInfoId: deliveryInfo.id });
-
         const signature = await signaturesRepository.create({
             userId,
             plan,
             startDate,
             deliveryInfoId: deliveryInfo.id,
         });
-
-        console.log({ signature });
 
         await productsRepository.signProducts({ products, signature });
 
@@ -54,4 +50,23 @@ async function signPlan({
     }
 }
 
-export { signPlan };
+async function getPlan({ token }) {
+    const signature = await signaturesRepository.getSignatureByToken({ token });
+    if (!signature) {
+        return null;
+    }
+    const signatureProducts = await signaturesRepository.getSignatureProducts({
+        signature,
+    });
+    if (!signatureProducts) {
+        return null;
+    }
+    signature.products = [];
+    signatureProducts.forEach((product) => {
+        signature.products.push(product.name);
+    });
+
+    return signature;
+}
+
+export { signPlan, getPlan };
