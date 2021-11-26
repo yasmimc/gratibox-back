@@ -23,4 +23,14 @@ async function signProducts({ products, signature }) {
     }
 }
 
-export { signProducts };
+async function getProducts() {
+    try {
+        const result = await connection.query(`SELECT * FROM products;`);
+        return result.rows;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export { signProducts, getProducts };

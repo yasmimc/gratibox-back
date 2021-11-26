@@ -1,13 +1,11 @@
-import connection from "../database/connection.js";
+import * as productsService from "../services/productsService.js";
 
 async function getProducts(req, res) {
-    try {
-        const result = await connection.query(`SELECT * FROM products;`);
-        res.send(result.rows);
-    } catch (error) {
-        console.error(error);
-        res.sendStatus(500);
+    const products = await productsService.getProducts();
+    if (!products) {
+        return res.sendStatus(500);
     }
+    res.send(products);
 }
 
 export { getProducts };
