@@ -1,5 +1,6 @@
 import connection from "../database/connection.js";
 import { signatureSchema } from "../database/validations/schemas.js";
+import * as signaturesService from "../services/signaturesService.js";
 
 async function signPlan(req, res) {
     const {
@@ -35,54 +36,23 @@ async function signPlan(req, res) {
         return;
     }
 
-    try {
-        const deliveryInfo = await connection.query(
-            `INSERT INTO delivery_info (address, cep, city, state, user_fullname) 
-                VALUES ($1, $2, $3, $4, $5)
-                RETURNING id`,
-            [deliveryAddress, cep, city, state, userFullName]
-        );
+    const signedPlan = await signaturesService.signPlan({
+        userId,
+        plan,
+        cep,
+        city,
+        deliveryAddress,
+        products,
+        startDate,
+        state,
+        userFullName,
+    });
 
-        const signature = await connection.query(
-            `INSERT INTO signatures (user_id, plan_id, start_date, delivery_info) 
-                VALUES ($1, $2, $3, $4)
-                RETURNING id, date`,
-            [userId, plan, startDate, deliveryInfo.rows[0].id]
-        );
-
-        /* construct INSERT products query dinamically */
-        const insertProducts = [];
-        let preparedQuery = "";
-        products.forEach((product, index) => {
-            insertProducts.push(signature.rows[0].id, product);
-            preparedQuery += `($${(index + 1) * 2 - 1}, $${(index + 1) * 2})`;
-
-            if (products.length > 1 && index + 1 < products.length)
-                preparedQuery += ", ";
-        });
-
-        await connection.query(
-            `INSERT INTO signature_products (signature_id, product_id) VALUES ${preparedQuery}`,
-            insertProducts
-        );
-
-        res.status(201).send({
-            signatureId: signature.rows[0].id,
-            userId,
-            plan,
-            cep,
-            city,
-            deliveryAddress,
-            products,
-            startDate,
-            state,
-            userFullName,
-            date: signature.rows[0].date,
-        });
-    } catch (error) {
-        console.log(error);
+    if (!signedPlan) {
         res.sendStatus(500);
     }
+
+    res.status(201).send(signedPlan);
 }
 
 async function getUserPlan(req, res) {
