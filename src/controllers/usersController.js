@@ -3,6 +3,7 @@ import { usersSchema } from "../database/validations/schemas.js";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 import { dataAlredyExists } from "../helpers/databaseHelpers.js";
+import * as userService from "../services/userService.js";
 
 async function signUp(req, res) {
     const { name, email, password } = req.body;
@@ -22,23 +23,19 @@ async function signUp(req, res) {
         return;
     }
 
-    if (await dataAlredyExists("users", "email", email)) {
+    const result = await userService.createUser({ name, email, password });
+
+    if (!result) {
+        res.sendStatus(500);
+        return;
+    }
+
+    if (!result.user) {
         res.sendStatus(409);
         return;
     }
 
-    try {
-        const encryptedPassword = bcrypt.hashSync(password, 10);
-
-        connection.query(
-            `INSERT INTO users (name, email, password) VALUES ($1, $2, $3)`,
-            [name, email, encryptedPassword]
-        );
-        res.sendStatus(201);
-    } catch (error) {
-        console.log(error.message);
-        res.send(500);
-    }
+    res.status(201).send(result.user);
 }
 
 async function signIn(req, res) {
