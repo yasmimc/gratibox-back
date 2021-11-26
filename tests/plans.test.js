@@ -18,10 +18,7 @@ describe("GET /plans", () => {
             .get("/plans")
             .set({ Authorization: `Bearer ${token}` });
         expect(result.status).toEqual(200);
-        expect(result.body).not.toBeNull();
-        expect(result.body).toBeDefined();
-        expect(result.body).not.toBeUndefined();
-        expect(result.body).toBeTruthy();
+        expect(Array.isArray(result.body)).toBeTruthy();
     });
 });
 

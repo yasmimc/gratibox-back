@@ -4,6 +4,7 @@ import supertest from "supertest";
 import { createUser } from "./factories/createUser.js";
 import { createSession } from "./factories/createSession.js";
 import connection from "../src/database/connection.js";
+import { createSignature } from "./factories/createSignature.js";
 
 describe("POST /signature", () => {
     let token;
@@ -15,18 +16,7 @@ describe("POST /signature", () => {
     });
 
     it("should return 201 for successful signed Plan", async () => {
-        const body = {
-            userId: user.id,
-            cep: "31035060",
-            city: "Abadia dos Dourados",
-            deliveryAddress: "Rua São Bento, 300",
-            plan: "1",
-            products: [("1", "3")],
-            startDate: "2021-11-23",
-            state: "MG",
-            userFullName: "YASMIM CAVALCANTI DE REZENDE",
-            date: new Date(),
-        };
+        const body = createSignature(user.id);
 
         const result = await supertest(app)
             .post("/signature")
@@ -60,18 +50,7 @@ describe("GET /signature", () => {
         const user = await createUser();
         const session = await createSession(user.id);
         token = session.token;
-        const body = {
-            userId: user.id,
-            cep: "31035060",
-            city: "Abadia dos Dourados",
-            deliveryAddress: "Rua São Bento, 300",
-            plan: "1",
-            products: [("1", "3")],
-            startDate: "2021-11-23",
-            state: "MG",
-            userFullName: "YASMIM CAVALCANTI DE REZENDE",
-            date: new Date(),
-        };
+        const body = createSignature(user.id);
         const result = await supertest(app)
             .post("/signature")
             .send(body)
