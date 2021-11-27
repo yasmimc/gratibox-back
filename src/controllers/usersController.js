@@ -58,6 +58,28 @@ async function signIn(req, res) {
     res.status(200).send({ token: result.token, user: result.user });
 }
 
+async function validateUserToken(req, res) {
+    const { authorization } = req.headers;
+
+    if (
+        !authorization ||
+        authorization.trim() === "" ||
+        !authorization.includes("Bearer ")
+    )
+        return res.sendStatus(400);
+
+    const session = await userService.validateUserToken({ authorization });
+
+    if (!session) {
+        return res.sendStatus(500);
+    }
+    if (!session.token) {
+        return res.sendStatus(404);
+    }
+
+    return session;
+}
+
 async function logout(req, res) {
     const { token } = req.locals;
     const logoutSession = await userService.logoutUserSession({ token });
@@ -67,4 +89,4 @@ async function logout(req, res) {
     res.send(logoutSession);
 }
 
-export { signUp, signIn, logout };
+export { signUp, signIn, validateUserToken, logout };
