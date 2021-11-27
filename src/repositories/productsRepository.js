@@ -1,11 +1,11 @@
 import connection from "../database/connection.js";
 
-async function signProducts({ products, signature }) {
+async function signProducts({ products, subscription }) {
     /* construct INSERT products query dinamically */
     const insertProducts = [];
     let preparedQuery = "";
     products.forEach((product, index) => {
-        insertProducts.push(signature.id, product);
+        insertProducts.push(subscription.id, product);
         preparedQuery += `($${(index + 1) * 2 - 1}, $${(index + 1) * 2})`;
 
         if (products.length > 1 && index + 1 < products.length)
@@ -14,7 +14,7 @@ async function signProducts({ products, signature }) {
 
     try {
         await connection.query(
-            `INSERT INTO signature_products (signature_id, product_id) VALUES ${preparedQuery}`,
+            `INSERT INTO subscription_products (subscription_id, product_id) VALUES ${preparedQuery}`,
             insertProducts
         );
     } catch (error) {

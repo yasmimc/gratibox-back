@@ -4,27 +4,34 @@ import supertest from "supertest";
 import { createUser } from "./factories/createUser.js";
 import { createSession } from "./factories/createSession.js";
 import connection from "../src/database/connection.js";
-import { createSignature } from "./factories/createSignature.js";
-import * as signaturesService from "../src/services/signaturesService.js";
+import { createSubscription } from "./factories/createSubscription.js";
+import * as subscriptionService from "../src/services/subscriptionService.js";
+import * as usersRepository from "../src/repositories/usersRepository.js";
+import * as sessionsRepository from "../src/repositories/sessionsRepository.js";
 
-describe("POST /signature", () => {
+describe("POST /subscription", () => {
     let token;
     let user;
     beforeAll(async () => {
-        user = await createUser();
-        const session = await createSession(user.id);
-        token = session.token;
+        const mockUser = createUser();
+        user = await usersRepository.create(mockUser);
+        const mockSession = createSession(user.id);
+        await sessionsRepository.create({
+            userId: user.id,
+            token: mockSession.token,
+        });
+        token = mockSession.token;
     });
 
     it("should return 201 for successful signed Plan", async () => {
-        const body = createSignature(user.id);
+        const body = await createSubscription(user.id);
 
         const result = await supertest(app)
-            .post("/signature")
+            .post("/subscription")
             .send(body)
             .set({ Authorization: `Bearer ${token}` });
         expect(result.status).toEqual(201);
-        expect(result.body).toHaveProperty("signatureId");
+        expect(result.body).toHaveProperty("subscriptionId");
         expect(result.body).toHaveProperty("userId");
         expect(result.body).toHaveProperty("plan");
         expect(result.body).toHaveProperty("products");
@@ -38,32 +45,37 @@ describe("POST /signature", () => {
 
     it("should return 400 for wrong body sent", async () => {
         const result = await supertest(app)
-            .post("/signature")
+            .post("/subscription")
             .send({})
             .set({ Authorization: `Bearer ${token}` });
         expect(result.status).toEqual(400);
     });
 });
 
-describe("GET /signature", () => {
+describe("GET /subscription", () => {
     let token;
     let user;
     beforeAll(async () => {
-        user = await createUser();
-        const session = await createSession(user.id);
-        token = session.token;
+        const mockUser = createUser();
+        user = await usersRepository.create(mockUser);
+        const mockSession = createSession(user.id);
+        await sessionsRepository.create({
+            userId: user.id,
+            token: mockSession.token,
+        });
+        token = mockSession.token;
     });
     afterEach(async () => {
-        await connection.query("DELETE FROM signature_products");
-        await connection.query("DELETE FROM signatures");
+        await connection.query("DELETE FROM subscription_products");
+        await connection.query("DELETE FROM subscriptions");
         await connection.query("DELETE FROM delivery_info");
     });
 
     it("should return 200 and user plan info when it exists", async () => {
-        const body = createSignature(user.id);
-        await signaturesService.signPlan(body);
+        const body = await createSubscription(user.id);
+        await subscriptionService.signPlan(body);
         const result = await supertest(app)
-            .get("/signature")
+            .get("/subscription")
             .set({ Authorization: `Bearer ${token}` });
         expect(result.status).toEqual(200);
         expect(result.body).toHaveProperty("id");
@@ -82,15 +94,15 @@ describe("GET /signature", () => {
 
     it("should return 404 when user dont have a signed plan", async () => {
         const result = await supertest(app)
-            .get("/signature")
+            .get("/subscription")
             .set({ Authorization: `Bearer ${token}` });
         expect(result.status).toEqual(404);
     });
 });
 
 afterAll(async () => {
-    await connection.query("DELETE FROM signature_products");
-    await connection.query("DELETE FROM signatures");
+    await connection.query("DELETE FROM subscription_products");
+    await connection.query("DELETE FROM subscriptions");
     await connection.query("DELETE FROM delivery_info");
     await connection.query("DELETE FROM sessions");
     await connection.query("DELETE FROM users");

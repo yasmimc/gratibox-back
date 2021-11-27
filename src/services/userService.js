@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 import { validate as uuidValidate } from "uuid";
-import { dataAlredyExists } from "../helpers/databaseHelpers.js";
-import * as userRepository from "../repositories/userRepository.js";
-import * as sessionRepository from "../repositories/sessionRepository.js";
+import * as usersRepository from "../repositories/usersRepository.js";
+import * as sessionsRepository from "../repositories/sessionsRepository.js";
+import { dataAlredyExists } from "../repositories/utilsRespository.js";
 
 async function createUser({ name, email, password }) {
     if (await dataAlredyExists("users", "email", email)) {
@@ -13,7 +13,7 @@ async function createUser({ name, email, password }) {
     }
     const encryptedPassword = bcrypt.hashSync(password, 10);
 
-    const user = await userRepository.create({
+    const user = await usersRepository.create({
         name,
         email,
         password: encryptedPassword,
@@ -43,7 +43,7 @@ async function createUserSession({ email, password }) {
 
     const token = uuid();
 
-    const session = await sessionRepository.create({
+    const session = await sessionsRepository.create({
         userId: existentUser.id,
         token,
     });
@@ -62,11 +62,11 @@ async function validateUserToken({ authorization }) {
     if (token.trim() === "") return res.sendStatus(422);
     if (!uuidValidate(token)) return res.sendStatus(400);
 
-    return await sessionRepository.getSessionByToken({ token });
+    return await sessionsRepository.getSessionByToken({ token });
 }
 
 async function logoutUserSession({ token }) {
-    return await sessionRepository.setSessionAsExpired({ token });
+    return await sessionsRepository.setSessionAsExpired({ token });
 }
 
 export { createUser, createUserSession, validateUserToken, logoutUserSession };
