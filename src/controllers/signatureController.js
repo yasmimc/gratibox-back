@@ -1,5 +1,5 @@
 import { signatureSchema } from "../database/validations/schemas.js";
-import * as signaturesService from "../services/signaturesService.js";
+import * as signatureService from "../services/signatureService.js";
 
 async function signPlan(req, res) {
     const {
@@ -34,7 +34,7 @@ async function signPlan(req, res) {
         return res.sendStatus(400);
     }
 
-    const signedPlan = await signaturesService.signPlan({
+    const signedPlan = await signatureService.signPlan({
         userId,
         plan,
         cep,
@@ -55,7 +55,7 @@ async function signPlan(req, res) {
 
 async function getUserPlan(req, res) {
     const { token } = req.locals;
-    const userPlan = await signaturesService.getPlan({ token });
+    const userPlan = await signatureService.getPlan({ token });
     if (!userPlan) {
         return res.sendStatus(500);
     }

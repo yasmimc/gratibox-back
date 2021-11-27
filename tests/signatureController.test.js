@@ -5,18 +5,18 @@ import { createUser } from "./factories/createUser.js";
 import { createSession } from "./factories/createSession.js";
 import connection from "../src/database/connection.js";
 import { createSignature } from "./factories/createSignature.js";
-import * as signaturesService from "../src/services/signaturesService.js";
-import * as userRepository from "../src/repositories/userRepository.js";
-import * as sessionRepository from "../src/repositories/sessionRepository.js";
+import * as signatureService from "../src/services/signatureService.js";
+import * as usersRepository from "../src/repositories/usersRepository.js";
+import * as sessionsRepository from "../src/repositories/sessionsRepository.js";
 
 describe("POST /signature", () => {
     let token;
     let user;
     beforeAll(async () => {
         const mockUser = createUser();
-        user = await userRepository.create(mockUser);
+        user = await usersRepository.create(mockUser);
         const mockSession = createSession(user.id);
-        await sessionRepository.create({
+        await sessionsRepository.create({
             userId: user.id,
             token: mockSession.token,
         });
@@ -57,9 +57,9 @@ describe("GET /signature", () => {
     let user;
     beforeAll(async () => {
         const mockUser = createUser();
-        user = await userRepository.create(mockUser);
+        user = await usersRepository.create(mockUser);
         const mockSession = createSession(user.id);
-        await sessionRepository.create({
+        await sessionsRepository.create({
             userId: user.id,
             token: mockSession.token,
         });
@@ -73,7 +73,7 @@ describe("GET /signature", () => {
 
     it("should return 200 and user plan info when it exists", async () => {
         const body = createSignature(user.id);
-        await signaturesService.signPlan(body);
+        await signatureService.signPlan(body);
         const result = await supertest(app)
             .get("/signature")
             .set({ Authorization: `Bearer ${token}` });

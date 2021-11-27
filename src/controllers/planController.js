@@ -1,7 +1,7 @@
-import * as plansService from "../services/plansService.js";
+import * as planService from "../services/planService.js";
 
 async function getPlans(req, res) {
-    const plans = await plansService.getPlans();
+    const plans = await planService.getPlans();
     if (!plans) {
         return res.status(500);
     }

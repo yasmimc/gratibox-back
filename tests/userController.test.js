@@ -5,8 +5,8 @@ import supertest from "supertest";
 import connection from "../src/database/connection.js";
 import { createUser } from "./factories/createUser.js";
 import { createSession } from "./factories/createSession.js";
-import * as sessionRepository from "../src/repositories/sessionRepository.js";
-import * as userRepository from "../src/repositories/userRepository.js";
+import * as sessionsRepository from "../src/repositories/sessionsRepository.js";
+import * as usersRepository from "../src/repositories/usersRepository.js";
 import * as userService from "../src/services/userService.js";
 
 describe("POST /sign-up", () => {
@@ -35,7 +35,7 @@ describe("POST /sign-up", () => {
 
     it("returns 409 for existent user", async () => {
         const mockUser = createUser();
-        const newUser = await userRepository.create(mockUser);
+        const newUser = await usersRepository.create(mockUser);
         const result = await supertest(app).post("/sign-up").send(newUser);
         const status = result.status;
 
@@ -116,7 +116,7 @@ describe("DELETE /session", () => {
         const result = await userService.createUser(mockUser);
         user = result.user;
         const mockSession = createSession(user.id);
-        await sessionRepository.create({
+        await sessionsRepository.create({
             userId: user.id,
             token: mockSession.token,
         });
@@ -137,7 +137,7 @@ describe("DELETE /session", () => {
     });
 
     it("should return 404 when session is expired", async () => {
-        await sessionRepository.create({
+        await sessionsRepository.create({
             userId: user.id,
             token,
         });
