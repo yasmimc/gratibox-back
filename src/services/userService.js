@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 import { validate as uuidValidate } from "uuid";
-import { dataAlredyExists } from "../helpers/databaseHelpers.js";
 import * as userRepository from "../repositories/userRepository.js";
 import * as sessionRepository from "../repositories/sessionRepository.js";
+import { dataAlredyExists } from "../repositories/utilsRespository.js";
 
 async function createUser({ name, email, password }) {
     if (await dataAlredyExists("users", "email", email)) {

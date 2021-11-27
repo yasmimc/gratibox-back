@@ -80,6 +80,10 @@ async function validateUserToken(req, res) {
     return session;
 }
 
+async function authOk(req, res) {
+    return res.sendStatus(200);
+}
+
 async function logout(req, res) {
     const { token } = req.locals;
     const logoutSession = await userService.logoutUserSession({ token });
@@ -89,4 +93,4 @@ async function logout(req, res) {
     res.send(logoutSession);
 }
 
-export { signUp, signIn, validateUserToken, logout };
+export { signUp, signIn, validateUserToken, authOk, logout };
