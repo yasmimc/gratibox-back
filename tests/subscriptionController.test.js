@@ -24,7 +24,7 @@ describe("POST /subscription", () => {
     });
 
     it("should return 201 for successful signed Plan", async () => {
-        const body = createSubscription(user.id);
+        const body = await createSubscription(user.id);
 
         const result = await supertest(app)
             .post("/subscription")
@@ -72,7 +72,7 @@ describe("GET /subscription", () => {
     });
 
     it("should return 200 and user plan info when it exists", async () => {
-        const body = createSubscription(user.id);
+        const body = await createSubscription(user.id);
         await subscriptionService.signPlan(body);
         const result = await supertest(app)
             .get("/subscription")
