@@ -3,7 +3,7 @@ import connection from "../database/connection.js";
 async function create({ userId, plan, startDate, deliveryInfoId }) {
     try {
         const result = await connection.query(
-            `INSERT INTO signatures (user_id, plan_id, start_date, delivery_info) 
+            `INSERT INTO subscriptions (user_id, plan_id, start_date, delivery_info) 
                 VALUES ($1, $2, $3, $4)
                 RETURNING id, date`,
             [userId, plan, startDate, deliveryInfoId]
@@ -11,18 +11,18 @@ async function create({ userId, plan, startDate, deliveryInfoId }) {
 
         return result.rows[0];
     } catch (error) {
-        console.log("signaturesRepository.create ERROR");
+        console.log("subscriptionsRepository.create ERROR");
         console.log(error);
     }
 }
 
-async function getSignatureByToken({ token }) {
+async function getSubscriptionByToken({ token }) {
     try {
         const result = await connection.query(
-            `SELECT signatures.id,
+            `SELECT subscriptions.id,
                     sessions.user_id AS "userId",
-                    signatures.start_date AS "startDate",
-                    signatures.date,
+                    subscriptions.start_date AS "startDate",
+                    subscriptions.date,
                     delivery_info.user_fullname AS "userFullName",
                     delivery_info.address AS "deliveryAddress",
                     delivery_info.cep,
@@ -32,12 +32,12 @@ async function getSignatureByToken({ token }) {
                     plans.name AS "planName",
                     plans.period AS "planPeriod"
             FROM sessions
-            JOIN signatures 
-                ON signatures.user_id = sessions.user_id
+            JOIN subscriptions 
+                ON subscriptions.user_id = sessions.user_id
             JOIN delivery_info
-                ON signatures.delivery_info = delivery_info.id
+                ON subscriptions.delivery_info = delivery_info.id
             JOIN plans
-                ON plans.id = signatures.plan_id
+                ON plans.id = subscriptions.plan_id
             WHERE sessions.token = $1`,
             [token]
         );
@@ -55,15 +55,15 @@ async function getSignatureByToken({ token }) {
     }
 }
 
-async function getSignatureProducts({ signature }) {
+async function getSubscriptionProducts({ subscription }) {
     try {
         const result = await connection.query(
             `SELECT products.name 
             FROM products
-            JOIN signature_products
-                ON signature_products.product_id = products.id
-            WHERE signature_products.signature_id = $1`,
-            [signature.id]
+            JOIN subscription_products
+                ON subscription_products.product_id = products.id
+            WHERE subscription_products.subscription_id = $1`,
+            [subscription.id]
         );
         return result.rows;
     } catch (error) {
@@ -72,4 +72,4 @@ async function getSignatureProducts({ signature }) {
     }
 }
 
-export { create, getSignatureByToken, getSignatureProducts };
+export { create, getSubscriptionByToken, getSubscriptionProducts };

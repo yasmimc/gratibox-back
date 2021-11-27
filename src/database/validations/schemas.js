@@ -7,7 +7,7 @@ const usersSchema = joi.object({
     password: joi.string().pattern(new RegExp(strongPasswordRegex)).required(),
 });
 
-const signatureSchema = joi.object({
+const subscriptionSchema = joi.object({
     userId: joi.number().min(1).required(),
     cep: joi.string().max(8).pattern(new RegExp(cepRegex)).required(),
     city: joi.string().required(),
@@ -19,4 +19,4 @@ const signatureSchema = joi.object({
     userFullName: joi.string().required(),
 });
 
-export { usersSchema, signatureSchema };
+export { usersSchema, subscriptionSchema };

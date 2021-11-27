@@ -1,5 +1,5 @@
 import * as deliveryInfoRepository from "../repositories/deliveryInfoRepository.js";
-import * as signaturesRepository from "../repositories/signaturesRepository.js";
+import * as subscriptionsRepository from "../repositories/subscriptionsRepository.js";
 import * as productsRepository from "../repositories/productsRepository.js";
 
 async function signPlan({
@@ -22,17 +22,17 @@ async function signPlan({
             userFullName,
         });
 
-        const signature = await signaturesRepository.create({
+        const subscription = await subscriptionsRepository.create({
             userId,
             plan,
             startDate,
             deliveryInfoId: deliveryInfo.id,
         });
 
-        await productsRepository.signProducts({ products, signature });
+        await productsRepository.signProducts({ products, subscription });
 
         return {
-            signatureId: signature.id,
+            subscriptionId: subscription.id,
             userId,
             plan,
             cep,
@@ -42,7 +42,7 @@ async function signPlan({
             startDate,
             state,
             userFullName,
-            date: signature.date,
+            date: subscription.date,
         };
     } catch (error) {
         console.log(error);
@@ -51,22 +51,25 @@ async function signPlan({
 }
 
 async function getPlan({ token }) {
-    const signature = await signaturesRepository.getSignatureByToken({ token });
-    if (!signature) {
-        return null;
-    }
-    const signatureProducts = await signaturesRepository.getSignatureProducts({
-        signature,
+    const subscription = await subscriptionsRepository.getSubscriptionByToken({
+        token,
     });
-    if (!signatureProducts) {
+    if (!subscription) {
         return null;
     }
-    signature.products = [];
-    signatureProducts.forEach((product) => {
-        signature.products.push(product.name);
+    const subscriptionProducts =
+        await subscriptionsRepository.getSubscriptionProducts({
+            subscription,
+        });
+    if (!subscriptionProducts) {
+        return null;
+    }
+    subscription.products = [];
+    subscriptionProducts.forEach((product) => {
+        subscription.products.push(product.name);
     });
 
-    return signature;
+    return subscription;
 }
 
 export { signPlan, getPlan };

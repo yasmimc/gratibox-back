@@ -1,6 +1,6 @@
 import faker from "faker";
 
-function createSignature(userId) {
+function createSubscription(userId) {
     let cep = "";
 
     while (cep.length < 8) {
@@ -12,8 +12,8 @@ function createSignature(userId) {
         cep,
         city: faker.address.cityName(),
         deliveryAddress: `${faker.address.streetName()}, ${faker.address.streetAddress()}`,
-        plan: "7",
-        products: [("7", "9")],
+        plan: "1",
+        products: [("1", "3")],
         startDate: faker.date.future(),
         state: faker.address.stateAbbr(),
         userFullName: faker.name.findName(),
@@ -21,4 +21,4 @@ function createSignature(userId) {
     };
 }
 
-export { createSignature };
+export { createSubscription };
