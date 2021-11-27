@@ -109,13 +109,18 @@ describe("POST /sign-in", () => {
 });
 
 describe("DELETE /session", () => {
-    let session;
     let user;
+    let token;
     beforeAll(async () => {
         const mockUser = createUser();
         const result = await userService.createUser(mockUser);
         user = result.user;
-        session = await createSession(user.id);
+        const mockSession = createSession(user.id);
+        await sessionRepository.create({
+            userId: user.id,
+            token: mockSession.token,
+        });
+        token = mockSession.token;
     });
 
     afterEach(async () => {
@@ -125,7 +130,7 @@ describe("DELETE /session", () => {
     it("should set session as expired and return 200", async () => {
         const result = await supertest(app)
             .delete("/session")
-            .set({ Authorization: `Bearer ${session.token}` });
+            .set({ Authorization: `Bearer ${token}` });
         const status = result.status;
 
         expect(status).toEqual(200);
@@ -134,14 +139,14 @@ describe("DELETE /session", () => {
     it("should return 404 when session is expired", async () => {
         await sessionRepository.create({
             userId: user.id,
-            token: session.token,
+            token,
         });
         await supertest(app)
             .delete("/session")
-            .set({ Authorization: `Bearer ${session.token}` });
+            .set({ Authorization: `Bearer ${token}` });
         const result = await supertest(app)
             .delete("/session")
-            .set({ Authorization: `Bearer ${session.token}` });
+            .set({ Authorization: `Bearer ${token}` });
         const status = result.status;
 
         expect(status).toEqual(404);

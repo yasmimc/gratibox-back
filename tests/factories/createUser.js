@@ -1,6 +1,4 @@
 import faker from "faker";
-import connection from "../../src/database/connection.js";
-import bcrypt from "bcrypt";
 import RandExp from "randexp";
 import { strongPasswordRegex } from "../../src/database/validations/regex.js";
 

@@ -5,14 +5,19 @@ import { createUser } from "./factories/createUser.js";
 import { createSession } from "./factories/createSession.js";
 import connection from "../src/database/connection.js";
 import * as userRepository from "../src/repositories/userRepository.js";
+import * as sessionRepository from "../src/repositories/sessionRepository.js";
 
 describe("GET /plans", () => {
     let token;
     beforeAll(async () => {
         const mockUser = createUser();
         const user = await userRepository.create(mockUser);
-        const session = await createSession(user.id);
-        token = session.token;
+        const mockSession = createSession(user.id);
+        await sessionRepository.create({
+            userId: user.id,
+            token: mockSession.token,
+        });
+        token = mockSession.token;
     });
 
     it("should return 200 and plans array", async () => {

@@ -6,15 +6,20 @@ import { createUser } from "./factories/createUser.js";
 import { createSession } from "./factories/createSession.js";
 import { v4 as uuid } from "uuid";
 import * as userRepository from "../src/repositories/userRepository.js";
+import * as sessionRepository from "../src/repositories/sessionRepository.js";
 
 describe("GET /auth", () => {
     it("return 200 when session exists and is active", async () => {
         const mockUser = createUser();
         const user = await userRepository.create(mockUser);
-        const session = await createSession(user.id);
+        const mockSession = createSession(user.id);
+        await sessionRepository.create({
+            userId: user.id,
+            token: mockSession.token,
+        });
         const result = await supertest(app)
             .get("/auth")
-            .set({ Authorization: `Bearer ${session.token}` });
+            .set({ Authorization: `Bearer ${mockSession.token}` });
         expect(result.status).toEqual(200);
     });
 

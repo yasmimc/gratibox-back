@@ -7,6 +7,7 @@ import connection from "../src/database/connection.js";
 import { createSignature } from "./factories/createSignature.js";
 import * as signaturesService from "../src/services/signaturesService.js";
 import * as userRepository from "../src/repositories/userRepository.js";
+import * as sessionRepository from "../src/repositories/sessionRepository.js";
 
 describe("POST /signature", () => {
     let token;
@@ -14,8 +15,12 @@ describe("POST /signature", () => {
     beforeAll(async () => {
         const mockUser = createUser();
         user = await userRepository.create(mockUser);
-        const session = await createSession(user.id);
-        token = session.token;
+        const mockSession = createSession(user.id);
+        await sessionRepository.create({
+            userId: user.id,
+            token: mockSession.token,
+        });
+        token = mockSession.token;
     });
 
     it("should return 201 for successful signed Plan", async () => {
@@ -53,8 +58,12 @@ describe("GET /signature", () => {
     beforeAll(async () => {
         const mockUser = createUser();
         user = await userRepository.create(mockUser);
-        const session = await createSession(user.id);
-        token = session.token;
+        const mockSession = createSession(user.id);
+        await sessionRepository.create({
+            userId: user.id,
+            token: mockSession.token,
+        });
+        token = mockSession.token;
     });
     afterEach(async () => {
         await connection.query("DELETE FROM signature_products");

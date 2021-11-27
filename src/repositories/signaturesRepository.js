@@ -9,8 +9,6 @@ async function create({ userId, plan, startDate, deliveryInfoId }) {
             [userId, plan, startDate, deliveryInfoId]
         );
 
-        console.log();
-
         return result.rows[0];
     } catch (error) {
         console.log("signaturesRepository.create ERROR");
