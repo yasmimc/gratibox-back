@@ -1,4 +1,5 @@
 import faker from "faker";
+import { v4 as uuid } from "uuid";
 import "../src/setup.js";
 import app from "../src/app.js";
 import supertest from "supertest";
@@ -150,6 +151,43 @@ describe("DELETE /session", () => {
         const status = result.status;
 
         expect(status).toEqual(404);
+    });
+});
+
+describe("GET /auth", () => {
+    it("return 200 when session exists and is active", async () => {
+        const mockUser = createUser();
+        const user = await usersRepository.create(mockUser);
+        const mockSession = createSession(user.id);
+        await sessionsRepository.create({
+            userId: user.id,
+            token: mockSession.token,
+        });
+        const result = await supertest(app)
+            .get("/auth")
+            .set({ Authorization: `Bearer ${mockSession.token}` });
+        expect(result.status).toEqual(200);
+    });
+
+    it("return 404 when session not exists", async () => {
+        const result = await supertest(app)
+            .get("/auth")
+            .set({ Authorization: `Bearer ${uuid()}` });
+        expect(result.status).toEqual(404);
+    });
+
+    it("return 400 when authorization dont have token", async () => {
+        const result = await supertest(app)
+            .get("/auth")
+            .set({ Authorization: `Bearer` });
+        expect(result.status).toEqual(400);
+    });
+
+    it("return 400 when authorization dont have 'Bearer'", async () => {
+        const result = await supertest(app)
+            .get("/auth")
+            .set({ Authorization: uuid() });
+        expect(result.status).toEqual(400);
     });
 });
 
